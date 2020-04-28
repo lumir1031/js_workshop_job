@@ -13,7 +13,7 @@ document.addEventListener("submit", function(e) {
   e.preventDefault();
   let description = form.elements["description"].value;
   let location = form.elements["location"].value;
-  let full_time = form.elements["full_time"].checked;
+  let full_time = trueToOn(form.elements["full_time"].checked);
 
   let searchParams = new URLSearchParams([['description', description], ['location', location], ['full_time', full_time]]);
 
@@ -22,8 +22,33 @@ document.addEventListener("submit", function(e) {
   fetch(requestUri)
   .then((response) => response.json())
   .then((data) => {
-      console.log(data);
+    let result = data.map(toPostHtml).join("");
+    document.getElementById('job-pannel').innerHTML = result;
   });
-  // 為什麼要兩層
-
+  
+  function toPostHtml(jsn) {
+    return `
+      <tr>
+        <td>
+          <h4><a href="${jsn.url}">${jsn.title}</a></h4>
+          <p class="source">
+          <a class="company" href="${jsn.company_url}">${jsn.company}</a>
+          –
+          <strong class="fulltime">${jsn.type}</strong>
+          </p>
+       </td>
+      <td class="meta">
+        <span class="location">${jsn.location}</span>
+      </td>
+    </tr>
+    `;
+  }
 })
+
+function trueToOn(full_time) {
+  if (full_time === true){
+    return "on";
+  } else{
+    return "";
+  }
+}
